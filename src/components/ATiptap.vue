@@ -60,6 +60,7 @@ import {
   ref,
   toRaw,
   unref,
+  watch,
   watchEffect,
 } from 'vue';
 import { Editor, Extensions } from '@tiptap/core';
@@ -135,6 +136,7 @@ export default defineComponent({
         return ['html', 'json'].includes(output);
       },
     },
+    // 指定是否对输入启用拼写检查
     spellcheck: {
       type: Boolean,
       default: false,
@@ -236,7 +238,12 @@ export default defineComponent({
       },
       onUpdate,
     });
-
+    // 修复初始赋值不生效的问题
+    watch(() => props.content, () => {
+      if (editor.value) {
+        editor.value.commands.setContent(props.content);
+      }
+    });
     watchEffect(() => {
       // eslint-disable-next-line no-unused-expressions
       unref(editor)?.setOptions({
